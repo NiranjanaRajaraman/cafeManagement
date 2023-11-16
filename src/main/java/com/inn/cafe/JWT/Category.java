@@ -14,6 +14,14 @@ public class Category {
 	
 	private String categoryCode;
 
+	public Category(Category categoryFromDb) {
+		this.categoryCode= categoryFromDb.categoryCode;
+		this.name= categoryFromDb.name;
+	}
+
+	public Category() {
+	}
+
 	public String getName() {
 		return name;
 	}
