@@ -92,7 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
 		try {
 			if (!Strings.isNullOrEmpty(filterValue) && filterValue.equalsIgnoreCase("true")) {
 				List<Product> productFromDb = productRepository.findAll();
-				List<Category> categoryList = productFromDb.stream().distinct().map(obj -> obj.getCategory())
+				List<Category> categoryList = productFromDb.stream().map(obj -> obj.getCategory()).distinct()
 						.collect(Collectors.toList());
 				return new ResponseEntity<List<Category>>(categoryList, HttpStatus.OK);
 			}
@@ -117,7 +117,7 @@ public class CategoryServiceImpl implements CategoryService {
 						return cafeUtils.getResponseEntity("Category code doesn't exist", HttpStatus.OK);
 					}
 				}
-				cafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
+				return cafeUtils.getResponseEntity(CafeConstants.INVALID_DATA, HttpStatus.BAD_REQUEST);
 			} else {
 				return cafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
 			}
