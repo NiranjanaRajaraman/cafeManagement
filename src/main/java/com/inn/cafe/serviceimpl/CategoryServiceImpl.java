@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@Autowired
 	JWTFilter jwtFitlter;
 
-	private static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
 	@Override
 	public ResponseEntity<String> addCategory(Map<String, String> requestMap) {
