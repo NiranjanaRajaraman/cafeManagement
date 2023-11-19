@@ -89,7 +89,7 @@ public class ProductController {
 
 	}
 	
-	@GetMapping(path = "/getByCategory")
+	@GetMapping(path = "/getProductByCategoryCode")
 	List<Map<String, String>> getByCategory(@RequestParam String categoryCode) {
 		try {
 			return productService.getByCategory(categoryCode);
