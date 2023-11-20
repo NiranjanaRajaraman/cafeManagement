@@ -1,10 +1,19 @@
 package com.inn.cafe.serviceimpl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,6 +194,79 @@ public class BillServiceImpl implements BillService {
 			ex.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public ResponseEntity<List<Bill>> getBills() {
+		List<Bill> billList = new ArrayList<>();
+		try {
+
+			if (jwtFitlter.isAdmin()) {
+				billList = billRepository.findAll();
+				billList.sort(Collections.reverseOrder());
+			} else {
+				billList = billRepository.findByCreatedBy(jwtFitlter.getCurrentUser());
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return new ResponseEntity<>(billList, HttpStatus.OK);
+	}
+
+	@Override
+	public ResponseEntity<byte[]> getPdf(Map<String, Object> requestMap) {
+		byte[] byteArray = new byte[0];
+		try {
+			LOGGER.info("Inside getpdf");
+
+			if (!requestMap.containsKey("uuid") && validateRequestMap(requestMap))
+				return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
+			String filePath = CafeConstants.STORE_LOCATION + "\\" + (String) requestMap.get("uuid") + ".pdf";
+			if (cafeUtils.isFileExist(filePath)) {
+				byteArray = getByteArray(filePath);
+				return new ResponseEntity<>(byteArray, HttpStatus.OK);
+
+			} else {
+				requestMap.put("isGenerate", false);
+				generateReport(requestMap);
+				byteArray = getByteArray(filePath);
+				return new ResponseEntity<>(byteArray, HttpStatus.OK);
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return new ResponseEntity<>(byteArray, HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	private byte[] getByteArray(String filePath) throws IOException {
+		File initialFile = new File(filePath);
+		InputStream targetStream = new FileInputStream(initialFile);
+		byte[] byteArray = IOUtils.toByteArray(targetStream);
+		targetStream.close();
+		return byteArray;
+	}
+
+	@Override
+	public ResponseEntity<String> deleteBill(String id) {
+		try {
+			if (jwtFitlter.isAdmin()) {
+				Bill billFromDb = billRepository.findByUuid(id);
+				if (Objects.nonNull(billFromDb)) {
+					billRepository.deleteByUuid(id);
+					return cafeUtils.getResponseEntity("Bill deleted successfully", HttpStatus.OK);
+				} else {
+					return cafeUtils.getResponseEntity("Bill id doesn't exist", HttpStatus.BAD_REQUEST);
+				}
+			} else {
+				return cafeUtils.getResponseEntity(CafeConstants.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return cafeUtils.getResponseEntity(CafeConstants.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 }
