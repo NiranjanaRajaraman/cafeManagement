@@ -33,10 +33,6 @@ The Cafe Management System is a comprehensive and efficient solution designed to
 - Grant special access to administrators for advanced management capabilities.
 - Admins can oversee and modify product details, monitor sales, and manage user roles.
 
-### User-Friendly Interface 🖥️
-
-- The system boasts an intuitive and user-friendly interface, making it easy for staff to navigate and perform tasks efficiently.
-
 ## Usage:
 ### Generating Bills 🧾
 
